@@ -32,4 +32,6 @@ When downloading thumbnails for an entire series of a programme use the series p
 ```
 python bbcthumb.py --series [pid]
 ```
+The program creates an additional folder in the download directory that has the series name so that all thumbnails of a single series are in one place.
+
 This is it for now, more info and perhaps a wiki page with upcoming updates.
