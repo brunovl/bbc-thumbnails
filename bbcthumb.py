@@ -53,6 +53,12 @@ if args.verbose:
     log.info("Verbose output enabled.")
 else:
     log.basicConfig(format="[%(levelname)s] %(message)s")
+if args.dest == '':
+    log.critical('Default destination missing! Please update the defaults with --config.')
+    sys.exit()
+if args.pid == []:
+    log.critical('No PIDs entered, closing program.')
+    sys.exit()
 log.info('Downloading PIDs {} at resolution {}'.format(args.pid, args.res))
 urls = []
 for pid in args.pid:
