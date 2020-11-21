@@ -4,8 +4,8 @@ def imgdown(urls, dest, namelist, adddir):
     n = 0
     try:
         os.mkdir(dest + adddir)
-    except OSError as exc:
-        print('[WARNING] Folder creation error ({}), continuing program.'.format(exc))
+    except:
+        pass
     if namelist is not None:
         names = []
         for x in namelist:
@@ -21,7 +21,10 @@ def imgdown(urls, dest, namelist, adddir):
             filename = os.path.join(dest, adddir + y.split("/")[-1])
         else:
             name = names[n].replace(":", "")
-            filename = dest + adddir + name + '.jpg'
+            if dest[-1]=='/':
+                filename = dest + adddir + name + '.jpg'
+            else:
+                filename = dest + adddir + '/' + name + '.jpg'
         img_data = opener.open(y)
         f = open(filename, "wb")
         f.write(img_data.read())
