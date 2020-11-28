@@ -4,23 +4,22 @@ A python program for downloading thumbnails for BBC television series. It uses t
 ###### Prerequisites
 The only prerequisite for now is BeautifulSoup. It can be downloaded from this website: [Crummy BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
 ###### First run
-The first run of the program must be done with **--config**, for instance:
+The first run of the program will start the configuration dialogue:
 ```
-python bbcthumb.py --config
+python bbcthumb.py
 Input the wanted default resolution: 1920x1080
 Input the wanted default destination: C:/Users/User/Desktop
 Do you want to skip episode name fetching (1 for yes, 0 for no): 0
 Saved config! Closing.
 ```
+Config can also be done using *--config*.
 ## Using the program
 ###### One episode thumbnail
 To download the thumbnail of one episode of a series (in other words one pid of an episode), do the following:
 ```
 python bbcthumb.py [pid]
 ```
-where **[pid]** is replaced with the pid of the wanted episode. The program will find the thumbnail link, adjust the resolution and download it to the default download directory. If everything is going as expected you should only see this warning:
->[WARNING] Folder creation error ([WinError 183] Cannot create a file when that file already exists: 'C:/Users/User/Desktop'), continuing program.
-This is a preventive solution for when downloading the whole series, more on that later (if anyone thinks of a better solution contact me, this is just a quick and dirty solution).
+where **[pid]** is replaced with the pid of the wanted episode. The program will find the thumbnail link, adjust the resolution and download it to the default download directory.
 ###### Multiple episode thumbnails
 Downloading thumbnails for multiple episodes is the same as it is for one, just add more pids. For instance:
 ```
@@ -33,5 +32,22 @@ When downloading thumbnails for an entire series of a programme use the series p
 python bbcthumb.py --series [pid]
 ```
 The program creates an additional folder in the download directory that has the series name so that all thumbnails of a single series are in one place.
+###### Help page
+```
+usage: bbcthumb.py [-h] [--res resolution] [--dest destination] [--series] [--nonames] [--config] [-v] [pid [pid ...]]
 
+Download BBC programme thumbnails.
+
+positional arguments:
+  pid                 programme pid
+
+optional arguments:
+  -h, --help          show this help message and exit
+  --res resolution    define the thumbnail resolution (Default: 1920x1080)
+  --dest destination  define the destination folder (Default: C:/BBC)
+  --series            whole series thumbnail download (currently limited to one series)
+  --nonames           skip fetching episode names (Default: False)
+  --config            run configuration of default values
+  -v, --verbose       run program with debug verbosity
+```
 This is it for now, more info and perhaps a wiki page with upcoming updates.

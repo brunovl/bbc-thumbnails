@@ -6,13 +6,26 @@ import urllib.request
 import configparser
 import logging as log
 config = configparser.ConfigParser()
-config.read('config.ini')
+try:
+    with open('config.ini') as c:
+        config.read('config.ini')
+except IOError:
+    res = input('Input the wanted default resolution: ')
+    dest = input('Input the wanted default destination: ')
+    nonames = bool(int(input('Do you want to skip episode name fetching (1 for yes, 0 for no): ')))
+    config = configparser.ConfigParser()
+    config['DEFAULT'] = {'resolution': res,
+                         'destination': dest,
+                         'names': nonames}
+    with open('config.ini', 'w') as configfile:
+        config.write(configfile)
+    sys.exit('Saved config! Closing.')
 parser = argparse.ArgumentParser(description='Download BBC programme thumbnails.')
 parser.add_argument('pid', type=str, nargs='*',
                     help='programme pid')
 parser.add_argument('--res', metavar='resolution', type=str, action='store',
                     default=config['DEFAULT']['resolution'],
-                    help='define the thumbnail resolution (default: {})'.format(config['DEFAULT']['resolution']))
+                    help='define the thumbnail resolution (Default: {})'.format(config['DEFAULT']['resolution']))
 parser.add_argument('--dest', metavar='destination', type=str, action='store',
                     default=config['DEFAULT']['destination'],
                     help='define the destination folder (Default: {})'.format(config['DEFAULT']['destination']))
