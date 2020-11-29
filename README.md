@@ -2,7 +2,8 @@
 A python program for downloading thumbnails for BBC television series. It uses the episode or series PID to download matching thumbnails.
 ## Getting Started
 ###### Prerequisites
-The only prerequisite for now is BeautifulSoup. It can be downloaded from this website: [Crummy BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
+* BeautifulSoup (pip install beautifulsoup4) - [Crummy BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
+* lxml (pip install lxml) - [Crummy Info](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-a-parser)
 ###### First run
 The first run of the program will start the configuration dialogue:
 ```

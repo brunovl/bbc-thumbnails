@@ -5,6 +5,7 @@ import sys
 import urllib.request
 import configparser
 import logging as log
+
 config = configparser.ConfigParser()
 try:
     with open('config.ini') as c:
@@ -16,7 +17,7 @@ except IOError:
     config = configparser.ConfigParser()
     config['DEFAULT'] = {'resolution': res,
                          'destination': dest,
-                         'names': nonames}
+                         'nonames': nonames}
     with open('config.ini', 'w') as configfile:
         config.write(configfile)
     sys.exit('Saved config! Closing.')
@@ -29,14 +30,14 @@ parser.add_argument('--res', metavar='resolution', type=str, action='store',
 parser.add_argument('--dest', metavar='destination', type=str, action='store',
                     default=config['DEFAULT']['destination'],
                     help='define the destination folder (Default: {})'.format(config['DEFAULT']['destination']))
-parser.add_argument('--series', action='store_const',
+parser.add_argument('-s', '--series', action='store_const',
                     const=True,
                     default=False,
                     help='whole series thumbnail download (currently limited to one series)')
 parser.add_argument('--nonames', action='store_const',
                     const='True',
-                    default=config['DEFAULT']['names'],
-                    help='skip fetching episode names (Default: {})'.format(config['DEFAULT']['names']))
+                    default=config['DEFAULT']['nonames'],
+                    help='skip fetching episode names (Default: {})'.format(config['DEFAULT']['nonames']))
 parser.add_argument('--config', action='store_const',
                     const=True,
                     default=False,
@@ -53,7 +54,7 @@ if args.config:
     config = configparser.ConfigParser()
     config['DEFAULT'] = {'resolution': res,
                          'destination': dest,
-                         'names': nonames}
+                         'nonames': nonames}
     with open('config.ini', 'w') as configfile:
         config.write(configfile)
     sys.exit('Saved config! Closing.')
@@ -65,38 +66,43 @@ else:
 if args.dest == '':
     log.critical('Default destination missing! Please update the defaults with --config.')
     sys.exit()
-if args.pid == []:
+if not args.pid:
     log.critical('No PIDs entered, closing program.')
     sys.exit()
 log.info('Downloading PIDs {} at resolution {}'.format(args.pid, args.res))
 urls = []
 for pid in args.pid:
     if args.series:
+        if len(args.pid) > 1:
+            sys.exit('[CRITICAL] Multiple series pid. Not supported yet!')
+        error = False
         try:
             httpcode = urllib.request.urlopen('https://www.bbc.co.uk/programmes/' + pid + '/episodes/guide').getcode()
             seriesurl = ('https://www.bbc.co.uk/programmes/' + pid + '/episodes/guide')
         except urllib.request.HTTPError as e:
             log.critical('Website inaccessible ({})'.format(e))
-            sys.exit('Unable to continue, closing program')
-        urls = webparser.series(seriesurl)
+            sys.exit()
+        log.info('Found matching websites: {}'.format(seriesurl))
+        imgurls, names = webparser.series(seriesurl, args.res, args.nonames)
+        log.info('Adjusted resolution image urls: {}'.format(imgurls))
     else:
         try:
             httpcode = urllib.request.urlopen('https://www.bbc.co.uk/programmes/' + pid).getcode()
             urls.append('https://www.bbc.co.uk/programmes/' + pid)
         except urllib.request.HTTPError as e:
             log.critical('Website inaccessible ({})'.format(e))
-            sys.exit('Unable to continue, closing program')
-        adddir=''
-log.info('Found matching websites: {}'.format(urls))
-imgurls = webparser.images(urls, args.res)
-log.info('Adjusted resolution image urls: {}'.format(imgurls))
-if args.nonames == 'False':
-    try:
-        names = webparser.names(urls)
-        log.info('Found matching episode names: {}'.format(names))
-    except:
-        log.warning('Skipping episode name fetch because of acquire fail')
-        names = None
+            sys.exit()
+        adddir = ''
+
+if not args.series:
+    log.info('Found matching websites: {}'.format(urls))
+    imgurls, names, error = webparser.images(urls, args.res, args.nonames)
+    log.info('Adjusted resolution image urls: {}'.format(imgurls))
+if args.nonames == 'False' and error == False:
+    log.info('Found matching episode names: {}'.format(names))
+elif error:
+    log.error('Skipped fetching episode names due to error ({}).'.format(error))
+    names = None
 else:
     log.info('Skipped fetching episode names')
     names = None
@@ -105,4 +111,3 @@ if args.series:
     log.info('Added {} directory to file destination'.format(adddir))
 if downloader.imgdown(imgurls, args.dest, names, adddir):
     log.info('Success!')
-    sys.exit('Done, Closing program.')
